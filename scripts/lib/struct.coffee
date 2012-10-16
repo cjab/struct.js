@@ -39,8 +39,8 @@ define [
 
     # Create an accessor object containing a getter and setter method for
     # the given array type.
-    _buildTypedArrayAccessor: (type, offset, size, buffer = @_buffer) ->
-      data = new window[type + "Array"](buffer, offset, size)
+    _buildTypedArrayAccessor: (type, offset, length, buffer = @_buffer) ->
+      data = new window[type + "Array"](buffer, offset, length)
       {
         get:       -> data
         set: (val) -> data.set(val)
@@ -69,20 +69,20 @@ define [
 
     # Create an accessor object containing a getter and setter method for
     # the given Struct array type.
-    _buildStructArrayAccessor: (type, offset, size, buffer = @_buffer) ->
-      {}
-      #data = new window[type + "Array"](buffer, offset, size)
-      #{
-      #  get:       -> data
-      #  set: (val) -> data.set(val)
-      #}
+    _buildStructArrayAccessor: (type, offset, length, buffer = @_buffer) ->
+      data = (new @_typeMap[type](@_buffer, offset) for i in [0...length])
+      {
+        get: -> data
+      }
 
 
 
     # Get the size in bytes of a type given it's string description
     _getSizeOfField: (prop, type, length = 1) ->
       size = Struct.TYPE_SIZE[type.toLowerCase()]
-      size = this[prop].getSize() unless size
+      if !size
+        size = this[prop].getSize()    if length == 1
+        size = this[prop][0].getSize() if length > 1
       size * length
 
 

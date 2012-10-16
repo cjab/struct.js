@@ -22,11 +22,6 @@ define [
       struct = new Struct(description, new ArrayBuffer(4))
 
 
-    #it "should work", ->
-
-    #  blah = new TestStruct
-
-
     describe "#constructor", ->
 
       it "should define a new field based on the description string", ->
@@ -120,6 +115,29 @@ define [
 
         it "should offset the following field correctly", ->
           offset   = struct.b.getSize() + 1
+          expect(view.getUint8(offset)).toEqual struct.c
+
+
+      describe "with a Struct array field", ->
+
+        beforeEach ->
+
+          description = [
+            "uint8 a"
+            "SimpleStruct b[2]"
+            "uint8 c"
+          ]
+          typeMap     = "SimpleStruct": SimpleStruct
+          buffer      = new ArrayBuffer(1024)
+          struct      = new Struct(description, buffer, typeMap: typeMap)
+          view        = new DataView(buffer)
+
+        it "should create a nested struct object", ->
+          expect(struct.b[0].ident).toEqual 0
+          expect(struct.b[1].ident).toEqual 0
+
+        it "should offset the following field correctly", ->
+          offset   = (struct.b[0].getSize() * 2) + 1
           expect(view.getUint8(offset)).toEqual struct.c
 
 
