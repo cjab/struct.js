@@ -107,7 +107,8 @@ define [
           ]
           typeMap     = "SimpleStruct": SimpleStruct
           buffer      = new ArrayBuffer(1024)
-          struct      = new Struct(description, buffer, typeMap: typeMap)
+          struct      = new Struct(description, buffer,
+                                   typeMap: typeMap, offset: 0)
           view        = new DataView(buffer)
 
         it "should create a nested struct object", ->
@@ -129,7 +130,8 @@ define [
           ]
           typeMap     = "SimpleStruct": SimpleStruct
           buffer      = new ArrayBuffer(1024)
-          struct      = new Struct(description, buffer, typeMap: typeMap)
+          struct      = new Struct(description, buffer,
+                                   typeMap: typeMap, offset: 0)
           view        = new DataView(buffer)
 
         it "should create a nested struct object", ->
@@ -149,6 +151,26 @@ define [
           struct      = new Struct(description, buffer, isLittleEndian: no)
           view        = new DataView(buffer)
           view.setUint16(0, 10, no)
+          expect(struct.a).toEqual 10
+
+      describe "with an offset", ->
+
+        it "should read values starting from the offset", ->
+          description = [ "uint8 a" ]
+          buffer      = new ArrayBuffer(32)
+          struct      = new Struct(description, buffer, offset: 1)
+          view        = new DataView(buffer)
+          view.setUint8(1, 10, yes)
+          expect(struct.a).toEqual 10
+
+      describe "without an offset", ->
+
+        it "should default to an offset of 0", ->
+          description = [ "uint8 a" ]
+          buffer      = new ArrayBuffer(32)
+          struct      = new Struct(description, buffer)
+          view        = new DataView(buffer)
+          view.setUint8(0, 10, yes)
           expect(struct.a).toEqual 10
 
 

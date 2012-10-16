@@ -1,8 +1,7 @@
 define [
-  "cs!lib/mixins/accessorize"
 ],
 
-(Accessorize) ->
+() ->
 
   class Struct
 
@@ -39,8 +38,9 @@ define [
 
     # Create an accessor object containing a getter and setter method for
     # the given array type.
-    _buildTypedArrayAccessor: (type, offset, length, buffer = @_buffer) ->
-      data = new window[type + "Array"](buffer, offset, length)
+    _buildTypedArrayAccessor: (type, fieldOffset, length, buffer = @_buffer) ->
+      offset = @_structOffset + fieldOffset
+      data   = new window[type + "Array"](buffer, offset, length)
       {
         get:       -> data
         set: (val) -> data.set(val)
@@ -50,17 +50,21 @@ define [
 
     # Create an accessor object containing a getter and setter method for
     # the given data type. Array data types should use _getTypedArrayAccessor.
-    _buildDataViewAccessor: (type, offset = 0, view = @_dataView) ->
-      get:       -> view["get#{type}"](offset,      @_isLittleEndian)
-      set: (val) -> view["set#{type}"](offset, val, @_isLittleEndian)
+    _buildDataViewAccessor: (type, fieldOffset = 0, view = @_dataView) ->
+      offset = @_structOffset + fieldOffset
+      {
+        get:       -> view["get#{type}"](offset,      @_isLittleEndian)
+        set: (val) -> view["set#{type}"](offset, val, @_isLittleEndian)
+      }
 
 
 
     # Create an accessor object containing a getter and setter method for
     # the given Struct type. Struct array data types should use
     # _getStructArrayAccessor.
-    _buildStructAccessor: (type, offset = 0, view = @_dataView) ->
-      data = new @_typeMap[type](@_buffer, offset)
+    _buildStructAccessor: (type, fieldOffset = 0, view = @_dataView) ->
+      offset = @_structOffset + fieldOffset
+      data   = new @_typeMap[type](@_buffer, offset)
       {
         get: -> data
       }
@@ -69,8 +73,9 @@ define [
 
     # Create an accessor object containing a getter and setter method for
     # the given Struct array type.
-    _buildStructArrayAccessor: (type, offset, length, buffer = @_buffer) ->
-      data = (new @_typeMap[type](@_buffer, offset) for i in [0...length])
+    _buildStructArrayAccessor: (type, fieldOffset, length, buffer = @_buffer) ->
+      offset = @_structOffset + fieldOffset
+      data   = (new @_typeMap[type](@_buffer, offset) for i in [0...length])
       {
         get: -> data
       }
@@ -87,24 +92,26 @@ define [
 
 
 
-    _buildAccessor: (type, offset, count) ->
+    # Build getter and setter methods for a field
+    _buildAccessor: (type, fieldOffset, count) ->
       isPrimitive = !!Struct.TYPE_SIZE[type.toLowerCase()]
       if isPrimitive and count == 1
-        @_buildDataViewAccessor(type, offset)
+        @_buildDataViewAccessor(type, fieldOffset)
       else if isPrimitive and count > 1
-        @_buildTypedArrayAccessor(type, offset, count)
+        @_buildTypedArrayAccessor(type, fieldOffset, count)
       else if count == 1
-        @_buildStructAccessor(type, offset)
+        @_buildStructAccessor(type, fieldOffset)
       else if count > 1
-        @_buildStructArrayAccessor(type, offset, count)
+        @_buildStructArrayAccessor(type, fieldOffset, count)
 
 
 
     constructor: (fields, @_buffer, options = {}) ->
       @_isLittleEndian = options.isLittleEndian ? yes
       @_typeMap        = options.typeMap || {}
+      @_structOffset   = options.offset  || 0
       @_dataView       = new DataView(@_buffer)
-      offset           = 0
+      fieldOffset      = 0
 
       for field in fields
         field = field.split " "
@@ -112,6 +119,7 @@ define [
         prop  = @_cleanProperty(field[1])
         count = @_arrayFieldLength(field[1])
 
-        Object.defineProperty this, prop, @_buildAccessor(type, offset, count)
+        Object.defineProperty this, prop,
+          @_buildAccessor(type, fieldOffset, count)
 
-        offset  += @_getSizeOfField(prop, type, count)
+        fieldOffset += @_getSizeOfField(prop, type, count)
