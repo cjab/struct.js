@@ -1,8 +1,10 @@
 define [
   "cs!lib/struct"
+  "cs!spec/structs/test_struct"
+  "cs!spec/structs/simple_struct"
 ],
 
-(Struct) ->
+(Struct, TestStruct, SimpleStruct) ->
 
 
   describe "Struct", ->
@@ -11,12 +13,18 @@ define [
     struct      = null
     view        = null
     buffer      = null
+    typeMap     = null
 
     beforeEach ->
       description = [
         "uint8 testField"
       ]
       struct = new Struct(description, new ArrayBuffer(4))
+
+
+    #it "should work", ->
+
+    #  blah = new TestStruct
 
 
     describe "#constructor", ->
@@ -92,12 +100,35 @@ define [
           expect(struct.a[0]).toEqual view.getUint8(0)
           expect(struct.a[1]).toEqual view.getUint8(1)
 
+
+      describe "with a Struct field", ->
+
+        beforeEach ->
+
+          description = [
+            "uint8 a"
+            "SimpleStruct b"
+            "uint8 c"
+          ]
+          typeMap     = "SimpleStruct": SimpleStruct
+          buffer      = new ArrayBuffer(1024)
+          struct      = new Struct(description, buffer, typeMap: typeMap)
+          view        = new DataView(buffer)
+
+        it "should create a nested struct object", ->
+          expect(struct.b.ident).toEqual 0
+
+        it "should offset the following field correctly", ->
+          offset   = struct.b.getSize() + 1
+          expect(view.getUint8(offset)).toEqual struct.c
+
+
       describe "with isLittleEndian parameter set to false", ->
 
         it "should read values as big endian", ->
           description = [ "uint16 a" ]
           buffer      = new ArrayBuffer(32)
-          struct      = new Struct(description, buffer, no)
+          struct      = new Struct(description, buffer, isLittleEndian: no)
           view        = new DataView(buffer)
           view.setUint16(0, 10, no)
           expect(struct.a).toEqual 10
@@ -127,28 +158,28 @@ define [
         expect(struct._arrayFieldLength("a[5]")).toEqual 5
 
       it "should return false if the type string does not represent an array", ->
-        expect(struct._arrayFieldLength("a")).toEqual 0
+        expect(struct._arrayFieldLength("a")).toEqual 1
 
 
 
-    describe "#_getTypedArrayAccessor", ->
+    describe "#_buildTypedArrayAccessor", ->
 
       it "should create a getter", ->
-        accessor = struct._getTypedArrayAccessor("Uint8", 0, 2)
+        accessor = struct._buildTypedArrayAccessor("Uint8", 0, 2)
         expect(accessor.get).toBeTruthy()
 
       it "should create a setter", ->
-        accessor = struct._getTypedArrayAccessor("Uint8", 0, 2)
+        accessor = struct._buildTypedArrayAccessor("Uint8", 0, 2)
         expect(accessor.set).toBeTruthy()
 
 
 
-    describe "#_getDataViewAccessor", ->
+    describe "#_buildDataViewAccessor", ->
 
       it "should create a getter", ->
-        accessor = struct._getDataViewAccessor("Uint8", 0)
+        accessor = struct._buildDataViewAccessor("Uint8", 0)
         expect(accessor.get).toBeTruthy()
 
       it "should create a setter", ->
-        accessor = struct._getDataViewAccessor("Uint8", 0)
+        accessor = struct._buildDataViewAccessor("Uint8", 0)
         expect(accessor.set).toBeTruthy()
