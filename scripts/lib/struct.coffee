@@ -123,3 +123,9 @@ define [
           @_buildAccessor(type, fieldOffset, count)
 
         fieldOffset += @_getSizeOfField(prop, type, count)
+
+      @_size = fieldOffset
+
+
+
+    getSize: -> @_size

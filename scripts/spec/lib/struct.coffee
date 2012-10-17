@@ -223,3 +223,84 @@ define [
       it "should create a setter", ->
         accessor = struct._buildDataViewAccessor("Uint8", 0)
         expect(accessor.set).toBeTruthy()
+
+      it "should return false if the type string does not represent an array", ->
+        expect(struct._arrayFieldLength("a")).toEqual 1
+
+
+
+    describe "#getSize", ->
+
+      describe "with only primitives", ->
+
+        beforeEach ->
+          description = [ "uint8 a", "int32 b" ]
+          struct      = new Struct(description, new ArrayBuffer(4))
+
+        it "should return the sum of all fields' sizes", ->
+          expect(struct.getSize()).toEqual 5
+
+      describe "with primitives and primitive arrays", ->
+
+        beforeEach ->
+          description = [ "uint8 a", "uint8 b[5]", "uint32 c" ]
+          struct      = new Struct(description, new ArrayBuffer(20))
+
+        it "should return the sum of all fields' sizes", ->
+          expect(struct.getSize()).toEqual 10
+
+      describe "with only structs", ->
+
+        beforeEach ->
+          description = [ "SimpleStruct a", "SimpleStruct b" ]
+          struct      = new Struct(
+                          description,
+                          new ArrayBuffer(20),
+                          typeMap: { "SimpleStruct": SimpleStruct }
+                        )
+
+        it "should return the sum of all fields' sizes", ->
+          expect(struct.getSize()).toEqual 16
+
+      describe "with structs and struct arrays", ->
+        beforeEach ->
+          description = [ "SimpleStruct a", "SimpleStruct b[2]", "SimpleStruct c" ]
+          struct      = new Struct(
+                          description,
+                          new ArrayBuffer(64),
+                          typeMap: { "SimpleStruct": SimpleStruct }
+                        )
+
+        it "should return the sum of all fields' sizes", ->
+          expect(struct.getSize()).toEqual 32
+
+      describe "with primitives, arrays, and structs", ->
+
+        beforeEach ->
+          description = [
+                          "uint8 a"
+                          "SimpleStruct b[2]"
+                          "SimpleStruct c"
+                          "uint8 d[4]"
+                        ]
+          struct      = new Struct(
+                          description,
+                          new ArrayBuffer(64),
+                          typeMap: { "SimpleStruct": SimpleStruct }
+                        )
+          window.blarg = struct
+
+        it "should return the sum of all fields' sizes", ->
+          expect(struct.getSize()).toEqual 29
+
+      describe "with an array that is not offset by a multiple of it's element size", ->
+
+        beforeEach ->
+          description = [ "uint8 a", "int32 d[2]" ]
+          struct      = new Struct(description, new ArrayBuffer(9))
+
+        it "should return the sum of all fields' sizes", ->
+          expect(struct.getSize()).toEqual 9
+
+      #it "should return the sum of all fields' sizes", ->
+      #  expect(struct._arrayFieldLength("a[5]")).toEqual 5

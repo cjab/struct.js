@@ -10,8 +10,4 @@ define [
       super [
         "int32 ident"
         "int32 version"
-      ], new ArrayBuffer(128)
-
-
-
-    getSize: -> 8
+      ], buffer
