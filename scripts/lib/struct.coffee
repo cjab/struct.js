@@ -1,9 +1,28 @@
 define [
+  "cs!lib/bin_array/uint8_bin_array"
+  "cs!lib/bin_array/int8_bin_array"
+  "cs!lib/bin_array/uint16_bin_array"
+  "cs!lib/bin_array/int16_bin_array"
+  "cs!lib/bin_array/uint32_bin_array"
+  "cs!lib/bin_array/int32_bin_array"
+  "cs!lib/bin_array/float32_bin_array"
+  "cs!lib/bin_array/float64_bin_array"
 ],
 
-() ->
+(Uint8BinArray, Int8BinArray, Uint16BinArray, Int16BinArray, Uint32BinArray, Int32BinArray, Float32BinArray, Float64BinArray) ->
+
 
   class Struct
+
+    @PRIMITIVE_ARRAYS:
+      "uint8":   Uint8BinArray
+      "int8":    Int8BinArray
+      "uint16":  Uint16BinArray
+      "int16":   Int16BinArray
+      "uint32":  Uint32BinArray
+      "int32":   Int32BinArray
+      "float32": Float32BinArray
+      "float64": Float64BinArray
 
     @TYPE_SIZE:
       uint8:   1
@@ -38,19 +57,20 @@ define [
 
     # Create an accessor object containing a getter and setter method for
     # the given array type.
-    _buildTypedArrayAccessor: (type, fieldOffset, length, buffer = @_buffer) ->
+    _buildPrimitiveArrayAccessor: (type, fieldOffset, length, buffer = @_buffer) ->
       offset = @_structOffset + fieldOffset
-      data   = new window[type + "Array"](buffer, offset, length)
+      array  = Struct.PRIMITIVE_ARRAYS[type.toLowerCase()]
+      data   = new array(buffer, offset, length, isLittleEndian: @_isLittleEndian)
       {
         get:       -> data
-        set: (val) -> data.set(val)
+        set: (val) -> (data[i] = v for v, i in val); data
       }
 
 
 
     # Create an accessor object containing a getter and setter method for
-    # the given data type. Array data types should use _getTypedArrayAccessor.
-    _buildDataViewAccessor: (type, fieldOffset = 0, view = @_dataView) ->
+    # the given data type. Array data types should use _getPrimitiveArrayAccessor.
+    _buildPrimitiveAccessor: (type, fieldOffset = 0, view = @_dataView) ->
       offset = @_structOffset + fieldOffset
       {
         get:       -> view["get#{type}"](offset,      @_isLittleEndian)
@@ -96,9 +116,9 @@ define [
     _buildAccessor: (type, fieldOffset, count) ->
       isPrimitive = !!Struct.TYPE_SIZE[type.toLowerCase()]
       if isPrimitive and count == 1
-        @_buildDataViewAccessor(type, fieldOffset)
+        @_buildPrimitiveAccessor(type, fieldOffset)
       else if isPrimitive and count > 1
-        @_buildTypedArrayAccessor(type, fieldOffset, count)
+        @_buildPrimitiveArrayAccessor(type, fieldOffset, count)
       else if count == 1
         @_buildStructAccessor(type, fieldOffset)
       else if count > 1

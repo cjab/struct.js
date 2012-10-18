@@ -174,6 +174,32 @@ define [
           expect(struct.a).toEqual 10
 
 
+      describe "with an array that is not offset by a multiple of it's element size", ->
+
+        beforeEach ->
+
+          description = [
+            "uint8 a"
+            "uint32 b[2]"
+            "uint8 c"
+          ]
+          buffer      = new ArrayBuffer(1024)
+          struct      = new Struct(description, buffer)
+          view        = new DataView(buffer)
+
+        it "should set values in the array", ->
+          struct.b[0] = 5
+          struct.b[1] = 7
+          expect(view.getUint32(1, yes)).toEqual 5
+          expect(view.getUint32(5, yes)).toEqual 7
+
+        it "should get values from the array", ->
+          view.setUint32(1, 5, yes)
+          view.setUint32(5, 7, yes)
+          expect(struct.b[0]).toEqual 5
+          expect(struct.b[1]).toEqual 7
+
+
 
     describe "#_cleanType", ->
 
@@ -202,26 +228,26 @@ define [
 
 
 
-    describe "#_buildTypedArrayAccessor", ->
+    describe "#_buildPrimitiveArrayAccessor", ->
 
       it "should create a getter", ->
-        accessor = struct._buildTypedArrayAccessor("Uint8", 0, 2)
+        accessor = struct._buildPrimitiveArrayAccessor("Uint8", 0, 2)
         expect(accessor.get).toBeTruthy()
 
       it "should create a setter", ->
-        accessor = struct._buildTypedArrayAccessor("Uint8", 0, 2)
+        accessor = struct._buildPrimitiveArrayAccessor("Uint8", 0, 2)
         expect(accessor.set).toBeTruthy()
 
 
 
-    describe "#_buildDataViewAccessor", ->
+    describe "#_buildPrimitiveAccessor", ->
 
       it "should create a getter", ->
-        accessor = struct._buildDataViewAccessor("Uint8", 0)
+        accessor = struct._buildPrimitiveAccessor("Uint8", 0)
         expect(accessor.get).toBeTruthy()
 
       it "should create a setter", ->
-        accessor = struct._buildDataViewAccessor("Uint8", 0)
+        accessor = struct._buildPrimitiveAccessor("Uint8", 0)
         expect(accessor.set).toBeTruthy()
 
       it "should return false if the type string does not represent an array", ->
@@ -288,7 +314,6 @@ define [
                           new ArrayBuffer(64),
                           typeMap: { "SimpleStruct": SimpleStruct }
                         )
-          window.blarg = struct
 
         it "should return the sum of all fields' sizes", ->
           expect(struct.getSize()).toEqual 29
@@ -301,6 +326,3 @@ define [
 
         it "should return the sum of all fields' sizes", ->
           expect(struct.getSize()).toEqual 9
-
-      #it "should return the sum of all fields' sizes", ->
-      #  expect(struct._arrayFieldLength("a[5]")).toEqual 5
