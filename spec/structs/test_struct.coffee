@@ -1,9 +1,8 @@
 define [
-  "cs!lib/mixins/accessorize"
   "cs!lib/struct"
 ],
 
-(Accessorize, Struct) ->
+(Struct) ->
 
   class TestStruct extends Struct
 

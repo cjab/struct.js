@@ -4,18 +4,18 @@
 <head>
   <title>Jasmine Spec Runner</title>
 
-  <link rel="stylesheet" type="text/css" href="scripts/vendor/jasmine/jasmine.css">
+  <link rel="stylesheet" type="text/css" href="../vendor/jasmine/jasmine.css">
 
-  <script src="scripts/vendor/jasmine/jasmine.js"></script>
-  <script src="scripts/vendor/jasmine/jasmine-html.js"></script>
+  <script src="../vendor/jasmine/jasmine.js"></script>
+  <script src="../vendor/jasmine/jasmine-html.js"></script>
 
-  <script data-main="scripts/main" src="scripts/vendor/require/require.js"></script>
+  <script data-main="../main" src="../vendor/require/require.js"></script>
 
   <script>
     require.config({
-      baseUrl: "scripts",
       paths: {
-        cs: "vendor/require/cs",
+        cs:           "vendor/require/cs",
+        CoffeeScript: "vendor/coffeescript/coffeescript"
       }
     });
 
