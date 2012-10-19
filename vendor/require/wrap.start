@@ -1,4 +1,9 @@
-//Copyright 2012, etc.
+/**
+ * Copyright 2012, Chad Jablonski
+ *
+ * Licensed under the MIT license:
+ * http://www.opensource.org/licenses/MIT
+ */
 
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
