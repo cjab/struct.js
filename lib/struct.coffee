@@ -83,8 +83,11 @@ define [
     # the given Struct type. Struct array data types should use
     # _getStructArrayAccessor.
     _buildStructAccessor: (type, fieldOffset = 0, view = @_dataView) ->
-      offset = @_structOffset + fieldOffset
-      data   = new @_typeMap[type](@_buffer, offset)
+      constructor = @_typeMap[type]
+      if not constructor
+        throw "Type: '#{type}' not recognized, try defining a type mapping"
+      offset      = @_structOffset + fieldOffset
+      data        = new @_typeMap[type](@_buffer, offset)
       {
         get: -> data
       }
@@ -94,6 +97,9 @@ define [
     # Create an accessor object containing a getter and setter method for
     # the given Struct array type.
     _buildStructArrayAccessor: (type, fieldOffset, length, buffer = @_buffer) ->
+      constructor = @_typeMap[type]
+      if not constructor
+        throw "Type: '#{type}' not recognized, try defining a type mapping"
       offset = @_structOffset + fieldOffset
       data   = (new @_typeMap[type](@_buffer, offset) for i in [0...length])
       {

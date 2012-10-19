@@ -44,6 +44,29 @@ define [
           expect(struct.a).toEqual view.getUint8(0)
 
 
+      describe "with an unknown field type", ->
+
+        beforeEach ->
+          description = [ "blarg a" ]
+          buffer      = new ArrayBuffer(4)
+          view        = new DataView(buffer)
+
+        it "should throw an exception", ->
+          expect(-> new Struct(description, buffer)).toThrow()
+
+
+      describe "with an unknown array field type", ->
+
+        beforeEach ->
+          description = [ "blarg a[20]" ]
+          buffer      = new ArrayBuffer(4)
+          view        = new DataView(buffer)
+
+        it "should throw an exception", ->
+          console.log "UGH"
+          expect(-> new Struct(description, buffer)).toThrow()
+
+
       describe "with multiple fields", ->
 
         beforeEach ->
