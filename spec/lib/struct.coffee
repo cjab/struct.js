@@ -22,6 +22,7 @@ define [
       struct = new Struct(description, new ArrayBuffer(4))
 
 
+
     describe "#constructor", ->
 
       it "should define a new field based on the description string", ->
@@ -63,8 +64,47 @@ define [
           view        = new DataView(buffer)
 
         it "should throw an exception", ->
-          console.log "UGH"
           expect(-> new Struct(description, buffer)).toThrow()
+
+
+      describe "with char8 primitive type", ->
+
+        beforeEach ->
+          description = [ "char8 a" ]
+          buffer      = new ArrayBuffer(4)
+          view        = new DataView(buffer)
+          struct      = new Struct(description, buffer)
+
+        it "should convert chars to character codes", ->
+          struct.a = "a"
+          expect(view.getUint8(0)).toEqual "a".charCodeAt(0)
+
+        it "should convert to chars from character codes", ->
+          view.setUint8(0, "a".charCodeAt(0))
+          expect(struct.a).toEqual "a"
+
+
+      describe "with char8 array type", ->
+
+        beforeEach ->
+          description = [ "char8 a[4]" ]
+          buffer      = new ArrayBuffer(4)
+          view        = new DataView(buffer)
+          struct      = new Struct(description, buffer)
+
+        it "should convert strings to character codes", ->
+          struct.a = "test"
+          expect(view.getUint8(0)).toEqual "t".charCodeAt(0)
+          expect(view.getUint8(1)).toEqual "e".charCodeAt(0)
+          expect(view.getUint8(2)).toEqual "s".charCodeAt(0)
+          expect(view.getUint8(3)).toEqual "t".charCodeAt(0)
+
+        it "should convert strings from character codes", ->
+          view.setUint8(0, "t".charCodeAt(0))
+          view.setUint8(1, "e".charCodeAt(0))
+          view.setUint8(2, "s".charCodeAt(0))
+          view.setUint8(3, "t".charCodeAt(0))
+          expect(struct.a).toEqual "test"
 
 
       describe "with multiple fields", ->
@@ -221,60 +261,6 @@ define [
           view.setUint32(5, 7, yes)
           expect(struct.b[0]).toEqual 5
           expect(struct.b[1]).toEqual 7
-
-
-
-    describe "#_cleanType", ->
-
-      it "should strip [] from type name", ->
-        expect(struct._cleanType("uint8[2]")).toEqual "Uint8"
-
-      it "should capitalize the first letter of the type name", ->
-        expect(struct._cleanType("uint8")).toEqual "Uint8"
-
-
-
-    describe "#_cleanProperty", ->
-
-      it "should strip [<number>] from property name", ->
-        expect(struct._cleanProperty("a[2]")).toEqual "a"
-
-
-
-    describe "#_arrayFieldLength", ->
-
-      it "should return true if the type string represents an array", ->
-        expect(struct._arrayFieldLength("a[5]")).toEqual 5
-
-      it "should return false if the type string does not represent an array", ->
-        expect(struct._arrayFieldLength("a")).toEqual 1
-
-
-
-    describe "#_buildPrimitiveArrayAccessor", ->
-
-      it "should create a getter", ->
-        accessor = struct._buildPrimitiveArrayAccessor("Uint8", 0, 2)
-        expect(accessor.get).toBeTruthy()
-
-      it "should create a setter", ->
-        accessor = struct._buildPrimitiveArrayAccessor("Uint8", 0, 2)
-        expect(accessor.set).toBeTruthy()
-
-
-
-    describe "#_buildPrimitiveAccessor", ->
-
-      it "should create a getter", ->
-        accessor = struct._buildPrimitiveAccessor("Uint8", 0)
-        expect(accessor.get).toBeTruthy()
-
-      it "should create a setter", ->
-        accessor = struct._buildPrimitiveAccessor("Uint8", 0)
-        expect(accessor.set).toBeTruthy()
-
-      it "should return false if the type string does not represent an array", ->
-        expect(struct._arrayFieldLength("a")).toEqual 1
 
 
 
