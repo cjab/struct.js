@@ -38,3 +38,51 @@ library.
 * Load the script using a script tag: `<script src="struct.min.js"></script>`
   Or load the script using an AMD module loader such as
   [RequireJS](http://requirejs.org).
+
+
+Field Types
+-----------
+
+
+### Primitives
+
+Primitives are the standard types provided by the DataView API. These include:  
+
+`uint8`, `int8`, `uint16`, `int16`, `uint32`, `int32`, `float32`, `float64`
+
+
+### Primitive Arrays
+
+Primitive arrays are just as they sound, arrays of primitive types.
+
+
+### Structs
+
+Structs themselves can also be used within a struct definition. For example:  
+
+    var buffer = new ArrayBuffer(8);
+
+    var entryStruct = new Struct({
+      "uint8 id",
+      "uint32 value"
+    });
+
+    var headerStruct = new Struct({
+      "entryStruct entry",
+      "uint8 length"
+    }, { typeMap: "entryStruct": entryStruct });
+
+    var data = headerStruct.build(buffer);
+
+    data.entry.id    = 1
+    data.entry.value = 0xdead
+    data.length      = 6
+
+Notice that you must pass a typeMap to the Struct constructor which maps the
+type string in the description to the struct that it represents.
+
+
+### Struct Arrays
+
+Struct arrays behave exactly the same as primitive arrays, the only difference
+being that their elements are structs.
