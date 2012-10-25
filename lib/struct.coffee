@@ -1,30 +1,34 @@
 define [
-  "cs!lib/field"
+  "cs!lib/field/field_factory"
 ],
 
-(Field) ->
+(FieldFactory) ->
 
 
   class Struct
 
 
     # Build getter and setter methods for a field
-    constructor: (description, buffer, options = {}) ->
-      isLittleEndian = options.isLittleEndian ? yes
-      typeMap        = options.typeMap || {}
-      structOffset   = options.offset  || 0
-      fieldOffset      = 0
+    constructor: (description, options = {}) ->
+      typeMap = options.typeMap || {}
+      factory = new FieldFactory
+      @fields = (factory.build(field, typeMap: typeMap) for field in description)
 
-      for field in description
-        field = new Field(field, buffer, structOffset + fieldOffset,
-          typeMap:        typeMap,
-          isLittleEndian: isLittleEndian
-        )
-        Object.defineProperty this, field.name, field.accessor
+
+
+    # Build an object bound to the given underlying buffer
+    build: (buffer, structOffset, options = {}) ->
+      data        = {}
+      dataView    = new DataView(buffer, structOffset)
+      fieldOffset = 0
+
+      for field in @fields
+        accessor     = field.buildAccessor(dataView, fieldOffset, options)
         fieldOffset += field.getSize()
+        Object.defineProperty data, field.name, accessor
 
-      @_size = fieldOffset
+      data
 
 
 
-    getSize: -> @_size
+    getSize: -> (field.getSize() for field in @fields).reduce((a, b) -> a + b)

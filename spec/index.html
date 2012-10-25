@@ -20,9 +20,14 @@
     });
 
     require([
-      "cs!spec/lib/field",
       "cs!spec/lib/struct",
+      "cs!spec/lib/field/field",
+      "cs!spec/lib/field/struct_field",
       "cs!spec/lib/bin_array/bin_array",
+      "cs!spec/lib/field/field_factory",
+      "cs!spec/lib/field/primitive_field",
+      "cs!spec/lib/field/struct_array_field",
+      "cs!spec/lib/field/primitive_array_field",
     ],
     function() {
       initJasmine = function() {

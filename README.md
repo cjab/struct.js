@@ -10,12 +10,14 @@ binary data. struct.js attempts to bring c-style structs to the browser.
 
 A quick example:  
 
-    var buffer = new ArrayBuffer(32);
-    var data = new Struct([
+    var buffer     = new ArrayBuffer(32);
+    var someStruct = new Struct([
       "uint8 fieldA",
       "float32 fieldB",
       "int32 fieldC[3]"
     ], buffer);
+
+    var data = someStruct.build(buffer);
 
     data.fieldA = 1;
     data.fieldC[0] = 1;
