@@ -19,14 +19,11 @@ A quick example:
 
     var data = someStruct.build(buffer);
 
-    data.fieldA = 1;
+    data.fieldA    = 1;
     data.fieldC[0] = 1;
     data.fieldC[1] = 2;
     data.fieldC[2] = 3;
 
-    console.log(data.fieldA);     // -> 1
-    console.log(data.fieldB);     // -> 0
-    console.log(data.fieldC);     // -> [1, 2, 3]
 
 
 Getting Started
@@ -38,6 +35,74 @@ library.
 * Load the script using a script tag: `<script src="struct.min.js"></script>`
   Or load the script using an AMD module loader such as
   [RequireJS](http://requirejs.org).
+
+
+
+How does it work?
+-----------------
+
+
+### Defining a struct
+
+The first step is creating an instance of `Struct`. `Struct` objects hold
+a description of the data that will later be used to read from an `ArrayBuffer`.
+This description must be passed in on `Struct`'s constructor:  
+
+    var exampleStruct = new Struct([
+      "uint8   type",
+      "uint32  id",
+      { type: "float32", name: "value", length: 1 }
+    ]);
+
+A structure description is just an array of strings, objects, or a mixture of
+both strings and objects. Each element of the array represents a field of the
+struct.
+
+If the element is a string then it is of the format `"type name"` where
+type is the data type and name is the name of the field. An array field
+can be created by using the [] array syntax along with an array size:
+`"type name[**size**]"` where size is an integer. When using a string
+to describe a field, if the field type is another `Struct` then a reference
+to that struct must be passed to the constructor:
+
+    var otherStruct = new Struct([**...**]);
+
+    var exampleStruct = new Struct([
+      "otherStruct a",
+      "uint8 b"
+    ], { typeMap: { "otherStruct": otherStruct } })
+
+
+If the element is an object it should be of the format:
+`{ type: "uint8", name: "fieldName" }`
+
+Arrays can be created by adding length to the description:
+`{ type: "uint8", name: "fieldName", length: 5 }`
+
+Descriptions of fields with a struct type should pass the struct object as
+the type:
+`{ type: otherStruct, name: "fieldName", length: 5 }`
+
+Because the struct object itself is passed as the type, the object style of
+field description doesn't require a typeMap hash.
+
+
+### Accessing data from an ArrayBuffer
+After creating a struct it can then be used to build a data object. Data objects
+are then used to access the data on the underlying `ArrayBuffer`.
+
+    var buffer = new ArrayBuffer(32);
+    var offset = 0;
+    var data   = exampleStruct.build(buffer, offset, { isLittleEndian: true });
+
+    data.a = 1;
+
+The first argument of `build` is the `ArrayBuffer` that the object will be
+accessing. The second is an offset in bytes from the beginning of the buffer.
+The third argument is an options hash which at the moment only handles
+setting the endianness of the data. If the options hash isn't provided the
+data is assumed to be little endian.
+
 
 
 Field Types
