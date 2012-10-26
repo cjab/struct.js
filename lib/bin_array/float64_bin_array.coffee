@@ -9,4 +9,4 @@ define [
     @ELEMENT_SIZE = 8
 
     constructor: (buffer, arrayOffset, length, options = {}) ->
-      super(buffer, arrayOffset, length, options)
+      super(buffer, arrayOffset, length, "Float64", options)

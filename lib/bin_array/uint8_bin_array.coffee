@@ -9,4 +9,4 @@ define [
     @ELEMENT_SIZE = 1
 
     constructor: (buffer, arrayOffset, length, options = {}) ->
-      super(buffer, arrayOffset, length, options)
+      super(buffer, arrayOffset, length, "Uint8", options)

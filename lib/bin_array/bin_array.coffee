@@ -6,8 +6,7 @@ define [
   class BinArray extends Array
 
 
-    constructor: (buffer, arrayOffset, @length, options = {}) ->
-      typeName        = options.typeName ? @constructor.name.replace("BinArray", "")
+    constructor: (buffer, arrayOffset, @length, @typeName, options = {}) ->
       elementSize     = options.elementSize ? @constructor.ELEMENT_SIZE
       isLittleEndian  = isLittleEndian ? options.isLittleEndian
       dataView        = new DataView(buffer)
