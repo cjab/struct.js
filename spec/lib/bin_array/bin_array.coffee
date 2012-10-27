@@ -29,8 +29,8 @@ define [
             buffer,
             arrayOffset,
             arrayLength,
+            arrayType,
             elementSize: elementSize
-            typeName: arrayType
             isLittleEndian: yes
           )
 
@@ -71,8 +71,8 @@ define [
             buffer,
             arrayOffset,
             arrayLength,
+            arrayType,
             elementSize: elementSize
-            typeName: arrayType
             isLittleEndian: yes
           )
 
@@ -112,8 +112,8 @@ define [
               buffer,
               arrayOffset,
               arrayLength,
+              arrayType,
               elementSize: elementSize
-              typeName: arrayType
               isLittleEndian: no
             )
 

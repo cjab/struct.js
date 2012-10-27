@@ -49,8 +49,8 @@ a description of the data that will later be used to read from an `ArrayBuffer`.
 This description must be passed in on `Struct`'s constructor:  
 
     var exampleStruct = new Struct([
-      "uint8   type",
-      "uint32  id",
+      "uint8 type",
+      "uint32 id",
       { type: "float32", name: "value", length: 1 }
     ]);
 
@@ -151,21 +151,21 @@ Structs themselves can also be used within a struct definition. For example:
 
     var buffer = new ArrayBuffer(8);
 
-    var entryStruct = new Struct({
+    var entryStruct = new Struct([
       "uint8 id",
       "uint32 value"
-    });
+    ]);
 
-    var headerStruct = new Struct({
+    var headerStruct = new Struct([
       "entryStruct entry",
       "uint8 length"
-    }, { typeMap: "entryStruct": entryStruct });
+    ], { typeMap: { "entryStruct": entryStruct } });
 
     var data = headerStruct.build(buffer);
 
-    data.entry.id    = 1
-    data.entry.value = 0xdead
-    data.length      = 6
+    data.entry.id    = 1;
+    data.entry.value = 0xdead;
+    data.length      = 6;
 
 Notice that you must pass a typeMap to the Struct constructor which maps the
 type string in the description to the struct that it represents.

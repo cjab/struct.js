@@ -18,9 +18,10 @@ define [
 
     # Build an object bound to the underlying buffer
     build: (buffer, structOffset, options = {}) ->
-      data        = {}
-      dataView    = new DataView(buffer, structOffset)
-      fieldOffset = 0
+      data          = {}
+      structOffset ?= 0
+      fieldOffset   = 0
+      dataView      = new DataView(buffer, structOffset)
 
       for field in @fields
         accessor     = field.buildAccessor(dataView, fieldOffset, options)

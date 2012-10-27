@@ -33,3 +33,5 @@ define [
       @type    = desc.type
       @name    = desc.name
       @length  = desc.length ? 1
+
+      throw "Unknown field type" if @type == null

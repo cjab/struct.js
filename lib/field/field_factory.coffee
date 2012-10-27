@@ -67,8 +67,14 @@ define [
     # of the same field.
     _parseFieldString: (field, typeMap = {}) ->
       field = field.split " "
+      if typeMap[field[0]]
+        type = typeMap[field[0]]
+      else if Field.PRIMITIVES[field[0].toLowerCase()]
+        type = field[0]
+      else
+        type = null
       {
-        type:   typeMap[field[0]] ? field[0]
+        type:   type
         name:   @_cleanProperty(field[1])
         length: @_arrayFieldLength(field[1])
       }
