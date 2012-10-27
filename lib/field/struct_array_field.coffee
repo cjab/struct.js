@@ -8,6 +8,9 @@ define [
   class StructArrayField extends Field
 
 
+
+    # Build an object containing the getter and setter that can be used to
+    # access this field.
     buildAccessor: (dataView, offset, options = {}) ->
       data = (
         for i in [0...@length]
@@ -19,4 +22,5 @@ define [
 
 
 
+    # Get the size in bytes of this field
     getSize: -> @type.getSize() * @length

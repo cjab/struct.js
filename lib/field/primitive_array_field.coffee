@@ -8,6 +8,9 @@ define [
   class PrimitiveArrayField extends Field
 
 
+
+    # Build an object containing the getter and setter that can be used to
+    # access this field.
     buildAccessor: (dataView, offset, options = {}) ->
       isLittleEndian = options.isLittleEndian ? yes
       array  = Field.PRIMITIVES[@type.toLowerCase()].array
@@ -20,4 +23,5 @@ define [
 
 
 
+    # Get the size in bytes of this field
     getSize: -> Field.PRIMITIVES[@type.toLowerCase()].size * @length

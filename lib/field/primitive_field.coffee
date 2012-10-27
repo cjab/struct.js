@@ -9,6 +9,8 @@ define [
 
 
 
+    # Build an object containing the getter and setter that can be used to
+    # access this field.
     buildAccessor: (dataView, offset, options = {}) ->
       isLittleEndian = options.isLittleEndian ? yes
       type           = @type.slice(0, 1).toUpperCase() + @type.slice(1)
@@ -19,4 +21,5 @@ define [
 
 
 
+    # Get the size in bytes of this field
     getSize: -> Field.PRIMITIVES[@type.toLowerCase()].size

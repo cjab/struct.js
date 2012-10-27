@@ -13,6 +13,9 @@ define [
 
 
 
+    # Build a field object from a description of the field. The description
+    # can be either a string or an object. A typeMap may optionally be passed
+    # in the case that a struct field is described by a string.
     build: (desc, options = {}) ->
       typeMap = options.typeMap || {}
       desc    = @_parseFieldString(desc, typeMap) if desc.constructor == String
@@ -33,12 +36,14 @@ define [
 
 
 
+    # Is the type of this field primitive?
     _isPrimitive: (type, length) ->
       typeof type == "string" &&
         Field.PRIMITIVES[type.toLowerCase()] && length == 1
 
 
 
+    # Is the type of this field primitive and is it an array?
     _isPrimitiveArray: (type, length) ->
       typeof type == "string" &&
         Field.PRIMITIVES[type.toLowerCase()] && length > 1
@@ -58,6 +63,8 @@ define [
 
 
 
+    # Parse a string description of a field and return a object description
+    # of the same field.
     _parseFieldString: (field, typeMap = {}) ->
       field = field.split " "
       {

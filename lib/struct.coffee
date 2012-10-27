@@ -8,7 +8,7 @@ define [
   class Struct
 
 
-    # Build getter and setter methods for a field
+    # Build field objects matching the description of this struct
     constructor: (description, options = {}) ->
       typeMap = options.typeMap || {}
       factory = new FieldFactory
@@ -16,7 +16,7 @@ define [
 
 
 
-    # Build an object bound to the given underlying buffer
+    # Build an object bound to the underlying buffer
     build: (buffer, structOffset, options = {}) ->
       data        = {}
       dataView    = new DataView(buffer, structOffset)
@@ -31,4 +31,5 @@ define [
 
 
 
+    # Get the size in bytes of this struct
     getSize: -> (field.getSize() for field in @fields).reduce((a, b) -> a + b)

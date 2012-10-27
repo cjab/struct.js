@@ -3,10 +3,10 @@ struct.js
 
 struct.js is a library that makes working with binary data in the browser a
 little less painful. ArrayBuffers and DataViews are great but keeping track
-of offsets when dealing with complicated data structures can be tedious.  
+of offsets when dealing with complicated data structures can be difficult.  
 
-It's tough to beat the syntax of the C language's structs when dealing with
-binary data. struct.js attempts to bring c-style structs to the browser.  
+It's tough to beat the syntax of the C language's structs. Struct.js attempts
+to bring c-style structs to the browser.  
 
 A quick example:  
 
@@ -61,26 +61,25 @@ struct.
 If the element is a string then it is of the format `"type name"` where
 type is the data type and name is the name of the field. An array field
 can be created by using the [] array syntax along with an array size:
-`"type name[**size**]"` where size is an integer. When using a string
-to describe a field, if the field type is another `Struct` then a reference
-to that struct must be passed to the constructor:
+`"type name[5]"`. When using a string to describe a field, if the field
+type is another `Struct` then a reference to that struct must be passed
+to the constructor:  
 
-    var otherStruct = new Struct([**...**]);
+    var otherStruct = new Struct([...]);
 
     var exampleStruct = new Struct([
       "otherStruct a",
       "uint8 b"
     ], { typeMap: { "otherStruct": otherStruct } })
 
-
-If the element is an object it should be of the format:
+If the element is an object it should be of the format:  
 `{ type: "uint8", name: "fieldName" }`
 
-Arrays can be created by adding length to the description:
+Arrays can be created by adding length to the description:  
 `{ type: "uint8", name: "fieldName", length: 5 }`
 
 Descriptions of fields with a struct type should pass the struct object as
-the type:
+the type:  
 `{ type: otherStruct, name: "fieldName", length: 5 }`
 
 Because the struct object itself is passed as the type, the object style of
@@ -88,6 +87,7 @@ field description doesn't require a typeMap hash.
 
 
 ### Accessing data from an ArrayBuffer
+
 After creating a struct it can then be used to build a data object. Data objects
 are then used to access the data on the underlying `ArrayBuffer`.
 
@@ -104,6 +104,29 @@ setting the endianness of the data. If the options hash isn't provided the
 data is assumed to be little endian.
 
 
+### What is an ArrayBuffer?
+
+An `ArrayBuffer` object holds a chunk of binary data that can be accessed
+by a javascript program. A blank buffer can be created by calling it's
+constructor and passing a buffer size (in bytes):
+`var buffer = new ArrayBuffer(32)`
+
+But the more interesting way to create an ArrayBuffer is by loading a file.
+
+    var fileUrl  = "/downloads/example.mp3";
+    var buffer   = null;
+    var xhr      = new XMLHttpRequest();
+
+    xhr.responseType = "arraybuffer";
+    xhr.open("GET", fileUrl);
+    xhr.onload = function(e) { buffer = xhr.response; }
+    xhr.send();
+
+By setting the responseType property of the xhr object the request will return
+an `ArrayBuffer` object. The returned buffer object can then be used with
+struct.js.
+
+
 
 Field Types
 -----------
@@ -118,7 +141,8 @@ Primitives are the standard types provided by the DataView API. These include:
 
 ### Primitive Arrays
 
-Primitive arrays are just as they sound, arrays of primitive types.
+Primitive arrays are just as they sound, arrays of primitive types. All of
+the listed primitive types can also be used for array fields.
 
 
 ### Structs
